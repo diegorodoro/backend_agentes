@@ -1,9 +1,12 @@
 from flask import Flask, request, jsonify
+from flask_cors import CORS
 import base64
 from utils.chatgpt_config import send_ChatGPT
 
 
 app = Flask(__name__)
+CORS(app)
+
 
 @app.route('/upload_image', methods=['POST'])
 def upload_image():
