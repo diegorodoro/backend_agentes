@@ -6,7 +6,7 @@ import pickle  # Si deseas guardar/cargar el tokenizer
 import re
 
 # Carga el modelo entrenado
-model_path = 'model_2_texto.h5'  # Cambia el número de versión si es necesario
+model_path = './model_2_texto.h5'  # Cambia el número de versión si es necesario
 model = load_model(model_path)
 
 # Etiquetas de emociones (asegúrate de que coincidan con las usadas en el entrenamiento)
@@ -20,7 +20,7 @@ EMOTION_LABELS = {
 }
 
 # Carga el tokenizer (suponiendo que lo guardaste en un archivo)
-tokenizer_path = 'tokenizer1.pkl'  # Cambia el nombre si usaste otro
+tokenizer_path = './tokenizer1.pkl'  # Cambia el nombre si usaste otro
 with open(tokenizer_path, 'rb') as handle:
     tokenizer = pickle.load(handle)
 
@@ -48,8 +48,7 @@ def predict_main_emotion(text):
     confidence = prediction[max_index]
     return main_emotion, confidence
 
-# Ejemplo de predicción
-if __name__ == "__main__":
-    sample_text = 'I love my dog'
-    emotion, confidence = predict_main_emotion(sample_text)
-    print(f"La emoción principal es: {emotion} ({confidence:.2%})")
+# Ejemplo de predicción7
+sample_text = 'I love my dog'
+emotion, confidence = predict_main_emotion(sample_text)
+print(f"La emoción principal es: {emotion} ({confidence:.2%})")
