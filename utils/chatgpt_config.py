@@ -16,27 +16,28 @@ client = OpenAI(api_key=API_KEY)
 from openai import OpenAI
 client = OpenAI()
 
-def send_ChatGPT(emotion):
-  response = client.chat.completions.create(
-    model="gpt-4o",
-    messages=[
-      {
-        "role": "user",
-        "content": [
-          {
-            "type": "text",
-            "text": f"what do you recommend if im feeling {emotion}?\n"
-          }
-        ]
-      }
-    ],
-    response_format={
-      "type": "text"
-    },
-    temperature=0.81,
-    max_tokens=2000,
-    top_p=1,
-    frequency_penalty=0,
-    presence_penalty=0
-  )
-  return response.choices[0].message.content
+def send_ChatGPT(emotion_face=None, emotion_text=None):
+    # Verificar qué parámetros se proporcionaron
+    if emotion_face and emotion_text:
+        prompt = f"what do you recommend if the face is {emotion_face} and the text is {emotion_text}?"
+    elif emotion_face:
+        prompt = f"what do you recommend if the face is {emotion_face}?"
+    elif emotion_text:
+        prompt = f"what do you recommend if the text is {emotion_text}?"
+    else:
+        raise ValueError("At least one of 'emotion_face' or 'emotion_text' must be provided.")
+    
+    # Realizar la llamada al modelo
+    response = client.chat.completions.create(
+        model="gpt-4o",
+        messages=[
+            {"role": "user", "content": prompt}
+        ],
+        temperature=0.81,
+        max_tokens=2000,
+        top_p=1,
+        frequency_penalty=0,
+        presence_penalty=0
+    )
+    
+    return response.choices[0].message.content
