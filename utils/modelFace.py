@@ -45,7 +45,7 @@ def detect_and_crop_face(image, yolo_model, padding=0.15):
 
 
 # Función principal
-def main():
+def main(img_base64):
     # Carga del modelo YOLO para detección de caras
     yolo_model = YOLO("./yolov8m-face.pt")
     # Carga del modelo de clasificación
