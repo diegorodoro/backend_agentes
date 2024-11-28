@@ -1,62 +1,55 @@
-import cv2
 import numpy as np
-import matplotlib.pyplot as plt 
 from tensorflow.keras.models import load_model
-from nltk.tokenize import word_tokenize
-import nltk
-from gensim.models import Word2Vec
+from tensorflow.keras.preprocessing.text import Tokenizer
+from tensorflow.keras.preprocessing.sequence import pad_sequences
+import pickle  # Si deseas guardar/cargar el tokenizer
+import re
 
-nltk.download('punkt')
+# Carga el modelo entrenado
+model_path = 'model_2_texto.h5'  # Cambia el número de versión si es necesario
+model = load_model(model_path)
 
-def train_word2vec_on_sentence(sentence, vector_size=10, window=3):
-    # Tokenize the sentence
-    tokenized_sentence = [word_tokenize(sentence.lower())]
-    # Train Word2Vec model
-    model_w2v = Word2Vec(sentences=tokenized_sentence, vector_size=vector_size, window=window, min_count=1)
-    return model_w2v
+# Etiquetas de emociones (asegúrate de que coincidan con las usadas en el entrenamiento)
+EMOTION_LABELS = {
+    0: 'sadness',
+    1: 'happiness',
+    2: 'love',
+    3: 'anger',
+    4: 'worry',
+    5: 'neutral',
+}
 
-# Convert sentence to a vector using Word2Vec
-def sentence_to_vector(sentence, model_w2v, vector_size=10):
-    tokenized_sentence = word_tokenize(sentence.lower())
-    vectors = [model_w2v.wv[word] for word in tokenized_sentence if word in model_w2v.wv]
-    return np.mean(vectors, axis=0) if vectors else np.zeros(vector_size)
+# Carga el tokenizer (suponiendo que lo guardaste en un archivo)
+tokenizer_path = 'tokenizer1.pkl'  # Cambia el nombre si usaste otro
+with open(tokenizer_path, 'rb') as handle:
+    tokenizer = pickle.load(handle)
 
-# Make a prediction with the emotion model
-def predict_emotion(text, emotion_model, model_w2v):
-    # Convert the sentence to a vector
-    sentence_vector = sentence_to_vector(text, model_w2v)
+# Configuración del padding
+MAX_LEN = 120  # Debe coincidir con el valor usado en el entrenamiento
 
-    # If no vector is generated, return a message
-    if not sentence_vector.any():
-        return "No relevant words found in the sentence."
+# Función para limpiar el texto
+def clean_text(text):
+    if isinstance(text, str):
+        text = re.sub(r'http\S+|www\S+|https\S+', '', text)
+        text = re.sub(r'@\w+|#\w+', '', text)
+        text = re.sub(r'[^a-zA-Z0-9\s!?.,]', '', text)
+        text = text.lower().strip()
+        return text
+    return ""
 
-    # Predict the emotion
-    prediction = emotion_model.predict(sentence_vector.reshape(1, -1))
-    emotion_labels = {0: 'sadness', 1: 'happiness', 2: 'love', 3: 'anger', 4: 'worry', 5: 'neutral'}
-    predicted_emotion = emotion_labels[np.argmax(prediction)]
-    return predicted_emotion
+# Función para predecir la emoción principal
+def predict_main_emotion(text):
+    cleaned = clean_text(text)
+    sequence = tokenizer.texts_to_sequences([cleaned])
+    padded = pad_sequences(sequence, maxlen=MAX_LEN)
+    prediction = model.predict(padded)[0]
+    max_index = np.argmax(prediction)
+    main_emotion = EMOTION_LABELS[max_index]
+    confidence = prediction[max_index]
+    return main_emotion, confidence
 
-def predict_text(text_input):
-
-    emotion_model = load_model('./model1.h5')
-
-    emotion_labels = {
-        0: 'sadness',
-        1: 'happiness',
-        2: 'love',
-        3: 'anger',
-        4: 'worry',
-        5: 'neutral'
-    }
-
-
-    model_w2v = train_word2vec_on_sentence(text_input)
-
-    # Make a prediction
-    result = predict_emotion(text_input, emotion_model, model_w2v)
-
-    print(result)
-    return str(result)
-
-# if __name__=='__main__':
-#     predict_text("im soooooo sad, kill me please")
+# Ejemplo de predicción
+if __name__ == "__main__":
+    sample_text = 'I love my dog'
+    emotion, confidence = predict_main_emotion(sample_text)
+    print(f"La emoción principal es: {emotion} ({confidence:.2%})")
