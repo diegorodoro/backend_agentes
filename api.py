@@ -2,7 +2,7 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 from utils.chatgpt_config import send_ChatGPT
 from utils.modelFace import predict_face
-
+from utils.modelText import predict_text
 
 app = Flask(__name__)
 CORS(app)
@@ -45,10 +45,13 @@ def upload_text():
         if not text.strip():
             return jsonify({"error": "El campo 'text' no debe estar vacío."}), 400
 
+        emotion_text=predict_text(text)
+
+
         # Procesar el texto (reemplaza con tu lógica)
         return jsonify({
             "message": "¡Texto recibido y guardado exitosamente!",
-            "chat": send_ChatGPT(emotion_text="sad")  # Reemplaza con tu función real
+            "chat": send_ChatGPT(emotion_text=emotion_text)  # Reemplaza con tu función real
         }), 200
 
     except Exception as e:
@@ -78,9 +81,10 @@ def upload_info():
             return jsonify({"error": "'text' must be a non-empty string."}), 400
 
         emotion_face=predict_face(base64_image)
+        emotion_text=predict_text(text)
 
         # Simular la función send_ChatGPT
-        chat_response = send_ChatGPT(emotion_face=emotion_face,emotion_text="happy")  # Sustituir por la implementación real
+        chat_response = send_ChatGPT(emotion_face=emotion_face,emotion_text=emotion_text)  # Sustituir por la implementación real
 
         return jsonify({
             "message": "Image received and saved successfully!",
