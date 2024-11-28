@@ -5,6 +5,8 @@ from ultralytics import YOLO
 from tensorflow.keras.models import load_model
 from tensorflow.keras.preprocessing.image import img_to_array
 import os
+import base64
+
 
 # Función para preprocesar imágenes desde un arreglo
 def preprocess_image_from_array(image, target_size=(256, 256)):
@@ -45,7 +47,7 @@ def detect_and_crop_face(image, yolo_model, padding=0.15):
 
 
 # Función principal
-def main(img_base64):
+def predict_face(img_base64):
     # Carga del modelo YOLO para detección de caras
     yolo_model = YOLO("./yolov8m-face.pt")
     # Carga del modelo de clasificación
@@ -53,10 +55,12 @@ def main(img_base64):
     # class_names = ["sadness", "happiness", "love", "anger", "worry", "neutral"]
     class_names = ["anger", "fear", "happy", "neutral", "sad", "surprise"]
 
+    image_data = base64.b64decode(img_base64)
+    np_array = np.frombuffer(image_data, np.uint8)
 
-    # Carga de la imagen
-    image_path = "./inigo.jpg"
-    image = cv2.imread(image_path)
+    # Paso 3: Leer la imagen con OpenCV desde el array NumPy
+    image = cv2.imdecode(np_array, cv2.IMREAD_COLOR)
+
     if image is None:
         print("Error: no se pudo cargar la imagen.")
         return
@@ -82,5 +86,5 @@ def main(img_base64):
     else:
         print("No se detectó ningún rostro en la imagen.")
 
-if __name__ == "__main__":
-    main()
+# if __name__ == "__main__":
+#     predict_face()

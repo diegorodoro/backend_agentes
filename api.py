@@ -1,7 +1,7 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-import base64
 from utils.chatgpt_config import send_ChatGPT
+from utils.modelFace import predict_face
 
 
 app = Flask(__name__)
@@ -17,12 +17,10 @@ def upload_image():
         if not base64_image:
             return jsonify({"error": "Missing 'base64_image' in the request"}), 400
 
-        image_data = base64.b64decode(base64_image) 
-        with open("uploaded_image.jpeg", "wb") as img_file:
-            img_file.write(image_data)
+        emotion_face=predict_face(base64_image)
 
         return jsonify({"message": "Image received and saved successfully!",
-                        "chat":send_ChatGPT(emotion_face="sad")}), 200
+                        "chat":send_ChatGPT(emotion_face=emotion_face)}), 200
 
     except Exception as e:
         return jsonify({"error": str(e)}), 400
@@ -79,17 +77,10 @@ def upload_info():
         if not isinstance(text, str) or not text.strip():
             return jsonify({"error": "'text' must be a non-empty string."}), 400
 
-        # Decodificar la imagen y guardarla
-        try:
-            image_data = base64.b64decode(base64_image)
-            with open("uploaded_image.jpeg", "wb") as img_file:
-                img_file.write(image_data)
-
-        except (base64.binascii.Error, TypeError) as decode_error:
-            return jsonify({"error": "Invalid base64 string for 'img'."}), 400
+        emotion_face=predict_face(base64_image)
 
         # Simular la función send_ChatGPT
-        chat_response = send_ChatGPT("sad","happy")  # Sustituir por la implementación real
+        chat_response = send_ChatGPT(emotion_face=emotion_face,emotion_text="happy")  # Sustituir por la implementación real
 
         return jsonify({
             "message": "Image received and saved successfully!",
@@ -98,7 +89,6 @@ def upload_info():
 
     except Exception as e:
         return jsonify({"error": f"An unexpected error occurred: {str(e)}"}), 500
-
 
 if __name__ == '__main__':
     app.run(debug=True)
