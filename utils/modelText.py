@@ -4,9 +4,10 @@ from tensorflow.keras.preprocessing.text import Tokenizer
 from tensorflow.keras.preprocessing.sequence import pad_sequences
 import pickle  # Si deseas guardar/cargar el tokenizer
 import re
+import os
 
 # Carga el modelo entrenado
-model_path = './model_2_texto.h5'  # Cambia el número de versión si es necesario
+model_path = os.path.join(os.path.dirname(__file__),'model_2_texto.h5') # Cambia el número de versión si es necesario
 model = load_model(model_path)
 
 # Etiquetas de emociones (asegúrate de que coincidan con las usadas en el entrenamiento)
@@ -20,7 +21,7 @@ EMOTION_LABELS = {
 }
 
 # Carga el tokenizer (suponiendo que lo guardaste en un archivo)
-tokenizer_path = './tokenizer1.pkl'  # Cambia el nombre si usaste otro
+tokenizer_path = os.path.join(os.path.dirname(__file__),'tokenizer1.pkl')  # Cambia el nombre si usaste otro
 with open(tokenizer_path, 'rb') as handle:
     tokenizer = pickle.load(handle)
 
@@ -38,7 +39,7 @@ def clean_text(text):
     return ""
 
 # Función para predecir la emoción principal
-def predict_main_emotion(text):
+def predict_text(text):
     cleaned = clean_text(text)
     sequence = tokenizer.texts_to_sequences([cleaned])
     padded = pad_sequences(sequence, maxlen=MAX_LEN)
@@ -46,9 +47,9 @@ def predict_main_emotion(text):
     max_index = np.argmax(prediction)
     main_emotion = EMOTION_LABELS[max_index]
     confidence = prediction[max_index]
-    return main_emotion, confidence
+    return str(main_emotion)
 
 # Ejemplo de predicción7
 sample_text = 'I love my dog'
-emotion, confidence = predict_main_emotion(sample_text)
-print(f"La emoción principal es: {emotion} ({confidence:.2%})")
+emotion = predict_text(sample_text)
+print(f"La emoción principal es: {emotion}")

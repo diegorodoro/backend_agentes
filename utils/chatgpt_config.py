@@ -13,9 +13,6 @@ API_KEY = os.getenv("OPENAI_API_KEY")
 
 client = OpenAI(api_key=API_KEY)
 
-from openai import OpenAI
-client = OpenAI()
-
 def send_ChatGPT(emotion_face=None, emotion_text=None):
     # Verificar qué parámetros se proporcionaron
     if emotion_face and emotion_text:

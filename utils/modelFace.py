@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 from ultralytics import YOLO
 from tensorflow.keras.models import load_model
 from tensorflow.keras.preprocessing.image import img_to_array
+import sys
 import os
 import base64
 
@@ -17,7 +18,7 @@ def preprocess_image_from_array(image, target_size=(256, 256)):
     return img_array
 
 # Función para detectar y recortar el rostro
-def detect_and_crop_face(image, yolo_model, padding=0.15):
+def detect_and_crop_face(image, yolo_model, padding=0.1):
     results = yolo_model(image)
     boxes = results[0].boxes.xyxy.cpu().numpy()  # Obtener las coordenadas de las cajas
     confidences = results[0].boxes.conf.cpu().numpy().tolist()  # Obtener las confianzas
@@ -49,9 +50,9 @@ def detect_and_crop_face(image, yolo_model, padding=0.15):
 # Función principal
 def predict_face(img_base64):
     # Carga del modelo YOLO para detección de caras
-    yolo_model = YOLO("./yolov8m-face.pt")
+    yolo_model = YOLO(os.path.join(os.path.dirname(__file__), "yolov8m-face.pt"))
     # Carga del modelo de clasificación
-    emotion_model = load_model('./model13.h5')
+    emotion_model = load_model(os.path.join(os.path.dirname(__file__), './model13.h5'))
     # class_names = ["sadness", "happiness", "love", "anger", "worry", "neutral"]
     class_names = ["anger", "fear", "happy", "neutral", "sad", "surprise"]
 
@@ -78,10 +79,10 @@ def predict_face(img_base64):
         confidence = np.max(prediction)
         
         # Mostrar la imagen con la predicción
-        plt.imshow(cv2.cvtColor(face, cv2.COLOR_BGR2RGB))
-        plt.title(f"Emoción: {class_names[predicted_class]} ({confidence*100:.2f}%)")
-        plt.axis("off")
-        plt.show()
+        # plt.imshow(cv2.cvtColor(face, cv2.COLOR_BGR2RGB))
+        # plt.title(f"Emoción: {class_names[predicted_class]} ({confidence*100:.2f}%)")
+        # plt.axis("off")
+        # plt.show()
         return str(class_names[predicted_class])
     else:
         print("No se detectó ningún rostro en la imagen.")
