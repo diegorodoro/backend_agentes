@@ -3,6 +3,7 @@ from flask_cors import CORS
 from utils.chatgpt_config import send_ChatGPT
 from utils.modelFace import predict_face
 from utils.modelText import predict_text
+import os
 
 app = Flask(__name__)
 CORS(app)
@@ -52,7 +53,11 @@ CORS(app)
 
 #     except Exception as e:
 #         return jsonify({"error": str(e)}), 400
-    
+@app.route('/')
+def home():
+    return "¡Hola desde Flask!"
+
+
 @app.route('/upload_info', methods=['POST'])
 def upload_info():
     try:
@@ -90,4 +95,5 @@ def upload_info():
         return jsonify({"error": f"An unexpected error occurred: {str(e)}"}), 500
 
 if __name__ == '__main__':
+    port = int(os.environ.get("PORT", 4000))
     app.run(debug=True)
