@@ -1,7 +1,8 @@
-import numpy as np
 from tensorflow.keras.models import load_model
 from tensorflow.keras.preprocessing.text import Tokenizer
 from tensorflow.keras.preprocessing.sequence import pad_sequences
+
+import numpy as np
 import pickle  # Si deseas guardar/cargar el tokenizer
 import re
 import os
