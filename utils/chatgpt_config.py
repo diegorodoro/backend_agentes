@@ -16,11 +16,11 @@ client = OpenAI(api_key=API_KEY)
 def send_ChatGPT(emotion_face=None, emotion_text=None):
     # Verificar qué parámetros se proporcionaron
     if emotion_face and emotion_text:
-        prompt = f"what do you recommend if the face is {emotion_face} and the text is {emotion_text}?"
+        prompt = f"Act like you are a psychologist expert in emotions, i want recommendation of music, fun activities, actions, or advices if the image im receiving shows a {emotion_face} emotion and the text from a chat that the user provide us shows a {emotion_text} emotion"
     elif emotion_face:
-        prompt = f"what do you recommend if the face is {emotion_face}?"
+        prompt = f"i want recommendation of music, fun activities, actions, or advices because im expiriencing a {emotion_face} emotion"
     elif emotion_text:
-        prompt = f"what do you recommend if the text is {emotion_text}?"
+        prompt = f"i want recommendation of music, fun activities, actions, or advices because im expiriencing a {emotion_text} emotion"
     else:
         raise ValueError("At least one of 'emotion_face' or 'emotion_text' must be provided.")
     

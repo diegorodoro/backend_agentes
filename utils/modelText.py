@@ -13,20 +13,20 @@ model = load_model(model_path)
 # Etiquetas de emociones (asegúrate de que coincidan con las usadas en el entrenamiento)
 EMOTION_LABELS = {
     0: 'sadness',
-    1: 'happiness',
+    1: 'joy',
     2: 'love',
     3: 'anger',
-    4: 'worry',
-    5: 'neutral',
+    4: 'fear',
+    5: 'surprise',
 }
 
 # Carga el tokenizer (suponiendo que lo guardaste en un archivo)
-tokenizer_path = os.path.join(os.path.dirname(__file__),'tokenizer1.pkl')  # Cambia el nombre si usaste otro
+tokenizer_path = os.path.join(os.path.dirname(__file__),'tokenizer.pickle')  # Cambia el nombre si usaste otro
 with open(tokenizer_path, 'rb') as handle:
     tokenizer = pickle.load(handle)
 
 # Configuración del padding
-MAX_LEN = 120  # Debe coincidir con el valor usado en el entrenamiento
+MAX_LEN = 100  # Debe coincidir con el valor usado en el entrenamiento
 
 # Función para limpiar el texto
 def clean_text(text):
@@ -40,16 +40,14 @@ def clean_text(text):
 
 # Función para predecir la emoción principal
 def predict_text(text):
-    cleaned = clean_text(text)
-    sequence = tokenizer.texts_to_sequences([cleaned])
+    sequence = tokenizer.texts_to_sequences(text)
     padded = pad_sequences(sequence, maxlen=MAX_LEN)
     prediction = model.predict(padded)[0]
     max_index = np.argmax(prediction)
     main_emotion = EMOTION_LABELS[max_index]
-    confidence = prediction[max_index]
     return str(main_emotion)
 
 # Ejemplo de predicción7
-sample_text = 'I love my dog'
+sample_text = 'I hate my stupid dog'
 emotion = predict_text(sample_text)
 print(f"La emoción principal es: {emotion}")
