@@ -1,6 +1,12 @@
 from openai import OpenAI
-from dotenv import load_dotenv
+# from dotenv import load_dotenv
 import os
+
+# # Ruta relativa al archivo .env
+# dotenv_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), ".env")
+
+# # Cargar el archivo .env desde la ruta especificada
+# load_dotenv(dotenv_path)
 
 # Leer la clave API
 API_KEY = os.getenv("OPENAI_API_KEY")
