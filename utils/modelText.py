@@ -1,13 +1,21 @@
-import numpy as np
-from tensorflow.keras.models import load_model
+from nltk.corpus import stopwords
+import nltk
+import tensorflow as tf
 from tensorflow.keras.preprocessing.text import Tokenizer
 from tensorflow.keras.preprocessing.sequence import pad_sequences
-import pickle  # Si deseas guardar/cargar el tokenizer
+from tensorflow.keras.models import load_model
+
+import numpy as np
 import re
+import pickle
+
 import os
+
+nltk.download('stopwords')
 
 # Carga el modelo entrenado
 model_path = os.path.join(os.path.dirname(__file__),'model_2_texto.h5') # Cambia el número de versión si es necesario
+
 model = load_model(model_path)
 
 # Etiquetas de emociones (asegúrate de que coincidan con las usadas en el entrenamiento)
@@ -25,29 +33,26 @@ tokenizer_path = os.path.join(os.path.dirname(__file__),'tokenizer.pickle')  # C
 with open(tokenizer_path, 'rb') as handle:
     tokenizer = pickle.load(handle)
 
-# Configuración del padding
-MAX_LEN = 100  # Debe coincidir con el valor usado en el entrenamiento
+def remove_stopwords(text):
+    stop_words = set(stopwords.words('english'))  # Definir las stopwords
+    words = text.split()  # Dividir el texto en palabras
+    filtered_words = [word for word in words if word.lower() not in stop_words]  # Filtrar stopwords
+    return " ".join(filtered_words)
 
-# Función para limpiar el texto
-def clean_text(text):
-    if isinstance(text, str):
-        text = re.sub(r'http\S+|www\S+|https\S+', '', text)
-        text = re.sub(r'@\w+|#\w+', '', text)
-        text = re.sub(r'[^a-zA-Z0-9\s!?.,]', '', text)
-        text = text.lower().strip()
-        return text
-    return ""
+def clean_punctuation(text):
+    # Eliminar signos de puntuación, dejando solo letras y espacios
+    return re.sub(r'[^\w\s]', '', text)
 
 # Función para predecir la emoción principal
 def predict_text(text):
-    sequence = tokenizer.texts_to_sequences(text)
-    padded = pad_sequences(sequence, maxlen=MAX_LEN)
-    prediction = model.predict(padded)[0]
-    max_index = np.argmax(prediction)
-    main_emotion = EMOTION_LABELS[max_index]
-    return str(main_emotion)
+    cleaned_sentences = [clean_punctuation(remove_stopwords(text))]
+    sequences = tokenizer.texts_to_sequences(cleaned_sentences)
+    padded = pad_sequences(sequences, maxlen=100, padding='post', truncating='post')
+    prediction = model.predict(padded)
+    emotion= EMOTION_LABELS[np.argmax(prediction)]
+    return str(emotion)
 
 # Ejemplo de predicción7
-sample_text = 'I hate my stupid dog'
+sample_text = 'Im so happy i passed quarentine'
 emotion = predict_text(sample_text)
 print(f"La emoción principal es: {emotion}")
